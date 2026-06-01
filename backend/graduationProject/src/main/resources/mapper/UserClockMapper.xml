@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.graduation.mapper.UserClockMapper">
+
+    <insert id="insert" parameterType="com.itheima.graduation.entity.UserClock">
+        INSERT INTO user_clock (user_id, clock_date, clock_time, status)
+        VALUES (#{userId}, #{clockDate}, #{clockTime}, #{status})
+    </insert>
+
+    <select id="countByUserId" parameterType="Long" resultType="int">
+        SELECT COUNT(*) FROM user_clock WHERE user_id = #{userId}
+    </select>
+
+    <select id="countContinuousDays" resultType="int">
+        SELECT COUNT(*) FROM user_clock 
+        WHERE user_id = #{userId} 
+        AND clock_date >= #{startDate}
+    </select>
+
+    <select id="selectTodayByUserId" parameterType="map" resultType="com.itheima.graduation.entity.UserClock">
+        SELECT * FROM user_clock 
+        WHERE user_id = #{userId} 
+        AND clock_date = #{today}
+    </select>
+
+    <select id="selectRecentByUserId" parameterType="Long" resultType="com.itheima.graduation.entity.UserClock">
+        SELECT * FROM user_clock 
+        WHERE user_id = #{userId} 
+        ORDER BY clock_date DESC
+        LIMIT 30
+    </select>
+
+    <select id="selectDailyClockStats" resultType="map">
+        SELECT DATE(clock_date) as date, COUNT(DISTINCT user_id) as count 
+        FROM user_clock 
+        WHERE clock_date &gt;= #{startDate} AND clock_date &lt;= #{endDate}
+        GROUP BY DATE(clock_date)
+        ORDER BY date ASC
+    </select>
+
+</mapper>

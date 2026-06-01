@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.graduation.mapper.CodeQuestionMapper">
+
+    <resultMap id="CodeQuestionResultMap" type="com.itheima.graduation.entity.CodeQuestion">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="codeTemplate" column="code_template"/>
+        <result property="difficulty" column="difficulty"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <resultMap id="TestCaseResultMap" type="com.itheima.graduation.entity.TestCase">
+        <id property="id" column="id"/>
+        <result property="questionId" column="question_id"/>
+        <result property="stdin" column="stdin"/>
+        <result property="stdout" column="stdout"/>
+        <result property="isExample" column="is_example"/>
+    </resultMap>
+
+    <resultMap id="UserRecordResultMap" type="com.itheima.graduation.entity.UserRecord">
+        <id property="id" column="id"/>
+        <result property="openid" column="openid"/>
+        <result property="questionId" column="question_id"/>
+        <result property="userCode" column="user_code"/>
+        <result property="userInput" column="user_input"/>
+        <result property="runOutput" column="run_output"/>
+        <result property="result" column="result"/>
+        <result property="submitTime" column="submit_time"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="CodeQuestionResultMap">
+        SELECT * FROM code_question WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="CodeQuestionResultMap">
+        SELECT * FROM code_question ORDER BY id
+    </select>
+
+    <select id="selectTestCasesByQuestionId" resultMap="TestCaseResultMap">
+        SELECT * FROM test_case WHERE question_id = #{questionId} ORDER BY id
+    </select>
+
+    <insert id="insertUserRecord" parameterType="com.itheima.graduation.entity.UserRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_record (openid, question_id, user_code, run_output, result, submit_time)
+        VALUES (#{openid}, #{questionId}, #{userCode}, #{runOutput}, #{result}, NOW())
+    </insert>
+
+    <select id="selectUserRecordsByOpenidAndQuestionId" resultMap="UserRecordResultMap">
+        SELECT * FROM user_record 
+        WHERE openid = #{openid} AND question_id = #{questionId}
+        ORDER BY submit_time DESC
+    </select>
+
+    <select id="selectLatestUserRecord" resultMap="UserRecordResultMap">
+        SELECT * FROM user_record 
+        WHERE openid = #{openid} AND question_id = #{questionId}
+        ORDER BY submit_time DESC
+        LIMIT 1
+    </select>
+
+</mapper>

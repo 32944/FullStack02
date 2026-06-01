@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.graduation.mapper.UserWrongMapper">
+
+    <resultMap id="BaseResultMap" type="com.itheima.graduation.entity.UserWrong">
+        <id column="user_id" property="userId"/>
+        <id column="problem_id" property="problemId"/>
+        <result column="wrong_count" property="wrongCount"/>
+        <result column="last_wrong_time" property="lastWrongTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        user_id, problem_id, wrong_count, last_wrong_time, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.itheima.graduation.entity.UserWrong">
+        INSERT INTO user_wrong (user_id, problem_id, wrong_count, last_wrong_time, create_time, update_time)
+        VALUES (#{userId}, #{problemId}, #{wrongCount}, NOW(), NOW(), NOW())
+    </insert>
+
+    <update id="update" parameterType="com.itheima.graduation.entity.UserWrong">
+        UPDATE user_wrong
+        <set>
+            <if test="wrongCount != null">wrong_count = #{wrongCount},</if>
+            last_wrong_time = NOW(),
+            update_time = NOW()
+        </set>
+        WHERE user_id = #{userId} AND problem_id = #{problemId}
+    </update>
+
+    <delete id="deleteByUserAndProblem">
+        DELETE FROM user_wrong
+        WHERE user_id = #{userId} AND problem_id = #{problemId}
+    </delete>
+
+    <select id="selectByUserAndProblem" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user_wrong
+        WHERE user_id = #{userId} AND problem_id = #{problemId}
+    </select>
+
+    <select id="selectProblemIdsByUser" resultType="java.lang.Long">
+        SELECT problem_id
+        FROM user_wrong
+        WHERE user_id = #{userId}
+        ORDER BY last_wrong_time DESC
+    </select>
+
+    <select id="selectActiveProblemIdsByUser" resultType="java.lang.Long">
+        SELECT uw.problem_id
+        FROM user_wrong uw
+        INNER JOIN problem p ON uw.problem_id = p.id
+        WHERE uw.user_id = #{userId} AND p.status = 1
+        ORDER BY uw.last_wrong_time DESC
+    </select>
+
+    <select id="selectByUser" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user_wrong
+        WHERE user_id = #{userId}
+        ORDER BY last_wrong_time DESC
+    </select>
+
+    <select id="countByUser" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM user_wrong
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="countActiveByUser" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM user_wrong uw
+        INNER JOIN problem p ON uw.problem_id = p.id
+        WHERE uw.user_id = #{userId} AND p.status = 1
+    </select>
+
+</mapper>

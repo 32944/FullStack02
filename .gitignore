@@ -1,0 +1,10 @@
+node_modules/
+.env
+__pycache__/
+*.pyc
+.idea/
+chroma_db/
+*.sqlite3
+uploads/
+chat_history.json
+conversation_history.json

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.graduation.mapper.UserFavoriteMapper">
+
+    <resultMap id="BaseResultMap" type="com.itheima.graduation.entity.UserFavorite">
+        <id column="user_id" property="userId"/>
+        <id column="problem_id" property="problemId"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        user_id, problem_id, create_time
+    </sql>
+
+    <insert id="insert" parameterType="com.itheima.graduation.entity.UserFavorite">
+        INSERT INTO user_favorite (user_id, problem_id, create_time)
+        VALUES (#{userId}, #{problemId}, NOW())
+    </insert>
+
+    <delete id="deleteByUserAndProblem">
+        DELETE FROM user_favorite
+        WHERE user_id = #{userId} AND problem_id = #{problemId}
+    </delete>
+
+    <select id="selectByUserAndProblem" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user_favorite
+        WHERE user_id = #{userId} AND problem_id = #{problemId}
+    </select>
+
+    <select id="selectProblemIdsByUser" resultType="java.lang.Long">
+        SELECT problem_id
+        FROM user_favorite
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectActiveProblemIdsByUser" resultType="java.lang.Long">
+        SELECT uf.problem_id
+        FROM user_favorite uf
+        INNER JOIN problem p ON uf.problem_id = p.id
+        WHERE uf.user_id = #{userId} AND p.status = 1
+        ORDER BY uf.create_time DESC
+    </select>
+
+    <select id="selectByUser" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user_favorite
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="countByUser" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM user_favorite
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="countActiveByUser" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM user_favorite uf
+        INNER JOIN problem p ON uf.problem_id = p.id
+        WHERE uf.user_id = #{userId} AND p.status = 1
+    </select>
+
+    <select id="selectTopFavorites" resultType="java.util.Map">
+        SELECT 
+            p.id, 
+            p.title, 
+            p.category_id as categoryId, 
+            p.difficulty,
+            COUNT(uf.user_id) as favoriteCount
+        FROM user_favorite uf
+        INNER JOIN problem p ON uf.problem_id = p.id
+        WHERE p.status = 1
+        GROUP BY p.id, p.title, p.category_id, p.difficulty
+        ORDER BY favoriteCount DESC
+        LIMIT #{limit}
+    </select>
+
+</mapper>

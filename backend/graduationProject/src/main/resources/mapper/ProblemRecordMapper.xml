@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.graduation.mapper.ProblemRecordMapper">
+
+    <resultMap id="BaseResultMap" type="com.itheima.graduation.entity.ProblemRecord">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="problem_id" property="problemId"/>
+        <result column="ansewr" property="ansewr"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <resultMap id="UserWrongVOMap" type="com.itheima.graduation.vo.UserWrongVO">
+        <result column="problem_id" property="problemId"/>
+        <result column="problem_title" property="problemTitle"/>
+        <result column="problem_status" property="problemStatus"/>
+        <result column="wrong_count" property="wrongCount"/>
+        <result column="last_wrong_time" property="lastWrongTime"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.itheima.graduation.entity.ProblemRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO problem_record (user_id, problem_id, ansewr, status, create_time)
+        VALUES (#{userId}, #{problemId}, #{ansewr}, #{status}, NOW())
+    </insert>
+
+    <update id="update" parameterType="com.itheima.graduation.entity.ProblemRecord">
+        UPDATE problem_record
+        SET ansewr = #{ansewr},
+            status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectByUserIdAndProblemId" resultMap="BaseResultMap">
+        SELECT id, user_id, problem_id, ansewr, status, create_time
+        FROM problem_record
+        WHERE user_id = #{userId} AND problem_id = #{problemId}
+    </select>
+
+    <select id="selectProblemIdsByUserAndStatus" resultType="java.lang.Long">
+        SELECT problem_id
+        FROM problem_record
+        WHERE user_id = #{userId} AND status = #{status}
+    </select>
+
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        SELECT id, user_id, problem_id, ansewr, status, create_time
+        FROM problem_record
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="selectByUserIdOrderByTime" resultMap="BaseResultMap">
+        SELECT id, user_id, problem_id, ansewr, status, create_time
+        FROM problem_record
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectUserWrongDetails" resultMap="UserWrongVOMap">
+        SELECT 
+            pr.problem_id,
+            p.title AS problem_title,
+            p.status AS problem_status,
+            COUNT(*) AS wrong_count,
+            MAX(pr.create_time) AS last_wrong_time,
+            MIN(pr.create_time) AS create_time
+        FROM problem_record pr
+        LEFT JOIN problem p ON pr.problem_id = p.id
+        WHERE pr.user_id = #{userId} AND pr.status = 0 AND (p.status = 1 OR p.status IS NULL)
+        GROUP BY pr.problem_id, p.title, p.status
+        ORDER BY last_wrong_time DESC
+    </select>
+
+</mapper>

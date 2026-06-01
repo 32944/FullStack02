@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.graduation.mapper.SysUserMapper">
+
+    <resultMap id="BaseResultMap" type="com.itheima.graduation.entity.SysUser">
+        <id column="id" property="id"/>
+        <result column="openid" property="openid"/>
+        <result column="nickname" property="nickname"/>
+        <result column="avatar" property="avatar"/>
+        <result column="target_job" property="targetJob"/>
+        <result column="current_level" property="currentLevel"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, openid, nickname, avatar, target_job, current_level, status, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.itheima.graduation.entity.SysUser" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_user (openid, nickname, avatar, target_job, current_level, status, create_time, update_time)
+        VALUES (#{openid}, #{nickname}, #{avatar}, #{targetJob}, #{currentLevel}, #{status}, NOW(), NOW())
+    </insert>
+
+    <update id="updateById" parameterType="com.itheima.graduation.entity.SysUser">
+        UPDATE sys_user
+        <set>
+            <if test="openid != null">openid = #{openid},</if>
+            <if test="nickname != null">nickname = #{nickname},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="targetJob != null">target_job = #{targetJob},</if>
+            <if test="currentLevel != null">current_level = #{currentLevel},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM sys_user WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM sys_user WHERE id = #{id}
+    </select>
+
+    <select id="selectByOpenid" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM sys_user WHERE openid = #{openid}
+    </select>
+
+    <select id="selectPage" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM sys_user
+        <where>
+            <if test="nickname != null and nickname != ''">
+                AND nickname LIKE CONCAT('%', #{nickname}, '%')
+            </if>
+            <if test="targetJob != null and targetJob != ''">
+                AND target_job = #{targetJob}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="count" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM sys_user
+        <where>
+            <if test="nickname != null and nickname != ''">
+                AND nickname LIKE CONCAT('%', #{nickname}, '%')
+            </if>
+            <if test="targetJob != null and targetJob != ''">
+                AND target_job = #{targetJob}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateStatus">
+        UPDATE sys_user SET status = #{status}, update_time = NOW() WHERE id = #{id}
+    </update>
+
+    <update id="updateLevel">
+        UPDATE sys_user SET current_level = #{currentLevel}, update_time = NOW() WHERE id = #{id}
+    </update>
+
+</mapper>

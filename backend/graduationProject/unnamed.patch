@@ -1,0 +1,16 @@
+Index: src/main/java/com/itheima/graduation/config/WebConfig.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/itheima/graduation/config/WebConfig.java b/src/main/java/com/itheima/graduation/config/WebConfig.java
+--- a/src/main/java/com/itheima/graduation/config/WebConfig.java	
++++ b/src/main/java/com/itheima/graduation/config/WebConfig.java	(date 1779090463194)
+@@ -36,6 +36,6 @@
+     public void addInterceptors(InterceptorRegistry registry) {
+         registry.addInterceptor(loginInterceptor)
+                 .addPathPatterns("/**")
+-                .excludePathPatterns("/user/login", "/user/register", "/admin/login", "/wx/login", "/user/notice/list", "/user/stats", "/static/**", "/uploads/**");
++                .excludePathPatterns("/user/login", "/user/register", "/admin/login", "/wx/login", "/user/notice/list", "/user/stats", "/user/exercise/records", "/static/**", "/uploads/**");
+     }
+ }
